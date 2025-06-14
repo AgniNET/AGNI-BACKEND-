@@ -1,29 +1,32 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 app = FastAPI()
 
+# Allow frontend requests
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 class InputData(BaseModel):
     input: str
 
-@app.get("/")
-def root():
-    return {"message": "Welcome to AGNI backend"}
-
 @app.post("/process")
-async def process(data: InputData):
+async def process_input(data: InputData):
     user_input = data.input.lower()
 
-    # Simple intelligent response logic
-    if "namaste" in user_input:
-        response = "Namaste! Main AGNI hoon, aapki sahayata ke liye yahan hoon."
-    elif "kaun ho" in user_input or "tum kaun ho" in user_input:
-        response = "Main AGNI hoon – Advanced General Network Intelligence, ek AGI assistant."
-    elif "kya kar sakte ho" in user_input:
-        response = "Main text, image, video, audio analyze kar sakta hoon, aur ethical hacking, data synthesis, aur advanced AI tasks bhi."
-    elif "shukriya" in user_input or "thanks" in user_input:
-        response = "Aapka swagat hai. Aap aur kya jaanna chahenge?"
+    # Simple response logic
+    if "hello" in user_input:
+        reply = "Hello! I'm AGNI. How can I help you today?"
+    elif "your name" in user_input:
+        reply = "My name is AGNI – Advance General Network Intelligence."
+    elif "who made you" in user_input:
+        reply = "I was created by Anand with the help of ChatGPT!"
     else:
-        response = f"Main aapka input '{data.input}' samajh nahi paaya, kripya kuch aur poochhiye."
+        reply = f"You said: {data.input}. I'm still learning to respond better."
 
-    return {"output": response}
+    return {"output": reply}
