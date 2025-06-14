@@ -1,29 +1,29 @@
-from fastapi import FastAPI, UploadFile, File, Form
-from fastapi.responses import JSONResponse
-import uvicorn
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 app = FastAPI()
 
-@app.get("/")
-def read_root():
-    return {"message": "Welcome to AGNI backend"}
+# CORS setup for frontend-backend communication
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # You can replace "*" with your frontend URL for better security
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-@app.post("/process/")
-async def process_input(
-    text: str = Form(None),
-    file: UploadFile = File(None)
-):
-    # Placeholder logic – बाद में AGNI modules से बदलेंगे
-    result = {}
-    if text:
-        result["text_response"] = f"Received text: {text}"
-    if file:
-        content = await file.read()
-        result["file_name"] = file.filename
-        result["file_size"] = len(content)
+# Input format expected from frontend
+class InputData(BaseModel):
+    input: str
 
-    return JSONResponse(content=result)
+# Process route to handle input and return output
+@app.post("/process")
+async def process_input(data: InputData):
+    user_input = data.input
 
-# अगर लोकली चलाना हो:
-# if __name__ == "__main__":
-#     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    # ⚙️ Temporary simple logic: Echo the input
+    response = f"AGNI Response: {user_input}"
+
+    # In future: Add real processing logic here
+    return {"output": response}
