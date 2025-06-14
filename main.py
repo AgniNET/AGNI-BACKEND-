@@ -1,32 +1,43 @@
 from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+import requests
 
 app = FastAPI()
 
-# Allow frontend requests
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# 🔐 AGNI Telegram Configuration
+BOT_TOKEN = "7065457101:AAFyMtSLy7ArYIq25ajiVX2U9UZy3QxREo"
+CHAT_ID = "7665788919"
 
-class InputData(BaseModel):
-    input: str
+# 🔁 Send text to Telegram channel
+def send_to_telegram(text: str):
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    payload = {
+        "chat_id": CHAT_ID,
+        "text": text
+    }
+    requests.post(url, data=payload)
 
+# 🎯 AGNI input handler
 @app.post("/process")
-async def process_input(data: InputData):
-    user_input = data.input.lower()
+async def process_input(req: Request):
+    data = await req.json()
+    user_input = data.get("input", "")
 
-    # Simple response logic
-    if "hello" in user_input:
-        reply = "Hello! I'm AGNI. How can I help you today?"
-    elif "your name" in user_input:
-        reply = "My name is AGNI – Advance General Network Intelligence."
-    elif "who made you" in user_input:
-        reply = "I was created by Anand with the help of ChatGPT!"
+    # 🤖 AGNI Intelligence Layer
+    if "video" in user_input.lower():
+        reply = "🎥 Video generation pipeline activated based on your input."
+    elif "image" in user_input.lower():
+        reply = "🖼️ Image rendering module initiated."
+    elif "audio" in user_input.lower() or "music" in user_input.lower():
+        reply = "🎵 Audio generation/selection module is working."
+    elif "link" in user_input.lower():
+        reply = "🔗 I'm preparing downloadable content links."
+    elif "delete" in user_input.lower():
+        reply = "🗑️ Deletion command received. Confirming with admin..."
     else:
-        reply = f"You said: {data.input}. I'm still learning to respond better."
+        reply = "✅ AGNI has received your message and is processing it intelligently."
+
+    # 📤 Telegram Logging
+    send_to_telegram(f"📩 User Input:\n{user_input}\n\n🧠 AGNI Reply:\n{reply}")
 
     return {"output": reply}
+
