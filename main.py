@@ -1,29 +1,29 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 app = FastAPI()
 
-# CORS setup for frontend-backend communication
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # You can replace "*" with your frontend URL for better security
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Input format expected from frontend
 class InputData(BaseModel):
     input: str
 
-# Process route to handle input and return output
+@app.get("/")
+def root():
+    return {"message": "Welcome to AGNI backend"}
+
 @app.post("/process")
-async def process_input(data: InputData):
-    user_input = data.input
+async def process(data: InputData):
+    user_input = data.input.lower()
 
-    # ⚙️ Temporary simple logic: Echo the input
-    response = f"AGNI Response: {user_input}"
+    # Simple intelligent response logic
+    if "namaste" in user_input:
+        response = "Namaste! Main AGNI hoon, aapki sahayata ke liye yahan hoon."
+    elif "kaun ho" in user_input or "tum kaun ho" in user_input:
+        response = "Main AGNI hoon – Advanced General Network Intelligence, ek AGI assistant."
+    elif "kya kar sakte ho" in user_input:
+        response = "Main text, image, video, audio analyze kar sakta hoon, aur ethical hacking, data synthesis, aur advanced AI tasks bhi."
+    elif "shukriya" in user_input or "thanks" in user_input:
+        response = "Aapka swagat hai. Aap aur kya jaanna chahenge?"
+    else:
+        response = f"Main aapka input '{data.input}' samajh nahi paaya, kripya kuch aur poochhiye."
 
-    # In future: Add real processing logic here
     return {"output": response}
